@@ -1,0 +1,49 @@
+# Configuração da Camada de Aquisição de Dados com Sqoop
+
+# Mover para o diretório /opt (como usuário hadoop no Node Master)
+cd  /opt
+
+
+# Download do Sqoop
+sudo wget http://www-eu.apache.org/dist/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+
+
+# Descompacta
+sudo tar -xvf sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+
+
+# Renomeia
+sudo mv sqoop-1.4.7.bin__hadoop-2.6.0/ sqoop
+
+
+# muda o owner
+sudo chown -R hadoop:hadoop sqoop/
+
+
+# Configura as variáveis de ambiente
+# Sqoop
+export SQOOP_HOME=/opt/sqoop
+export PATH=$PATH:$SQOOP_HOME/bin
+
+
+# Testa
+sqoop help
+
+
+# Download do driver JDBC do PostgreSQL
+# https://jdbc.postgresql.org/
+wget https://jdbc.postgresql.org/download/postgresql-9.4.1212.jar
+
+
+# Lista as tabelas
+sqoop list-tables --connect jdbc:postgresql://dsadev.c7kxqtdj4de7.us-east-2.rds.amazonaws.com/devdb --username admindsa -P
+
+
+# Importa a tabela
+sqoop import --connect jdbc:postgresql://dsadev.c7kxqtdj4de7.us-east-2.rds.amazonaws.com/devdb --table customer --username admindsa -P
+
+
+# Verifica os dados no HDFS
+hdfs dfs -ls
+hdfs dfs -ls customer
+hdfs dfs -cat customer/part-m-00001

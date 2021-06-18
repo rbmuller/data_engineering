@@ -1,0 +1,57 @@
+#### ORACLE ####
+
+# Conector Oracle JDBC "ojdbc6.jar" (segue em anexo)
+
+/opt/sqoop/lib
+
+# Conexão de Import - Sqoop
+
+sqoop import --connect jdbc:oracle:thin:@192.168.0.72:1521:orcl --table TB_VendaTotal --columns "NOMEPRODUTO, NOMECLIENTE, QTDEVENDA, VALORTOTAL" --username=dw --P --target-dir 'hdfs:///oracle/' -m 1
+
+# Verificando o resuntado no HDFS
+
+hdfs dfs -ls /
+
+Found 5 items
+drwxr-xr-x   - hadoop supergroup          0 2018-06-14 18:18 /datasets
+drwxr-xr-x   - hadoop supergroup          0 2018-06-15 07:21 /oracle
+drwxr-xr-x   - hadoop supergroup          0 2018-06-15 00:38 /sqlserver
+drwx------   - hadoop supergroup          0 2018-06-14 17:23 /tmp
+drwxr-xr-x   - hadoop supergroup          0 2018-06-14 17:23 /user
+
+hdfs dfs -ls /oracle
+
+Found 2 items
+-rw-r--r--   3 hadoop supergroup          0 2018-06-15 07:21 /oracle/_SUCCESS
+-rw-r--r--   3 hadoop supergroup         76 2018-06-15 07:21 /oracle/part-m-00000
+
+hdfs dfs -cat /oracle/part-m-00000
+
+Notebook Vaio,Ronaldo,3,5700
+Iphone 8,Pele,1,3900
+Notebook Vaio,Zico,1,1900
+
+
+# Listar as tabelas 
+
+ sqoop list-tables --driver oracle.jdbc.driver.OracleDriver --connect jdbc:oracle:thin:@192.168.0.72:1521:orcl --username=dw  --P
+
+# Resultado
+
+DR$NUMBER_SEQUENCE
+DR$OBJECT_ATTRIBUTE
+DR$POLICY_TAB
+DR$THS
+DR$THS_PHRASE
+MV_VENDAS_2018
+TB_DIM_CLIENTE
+TB_DIM_LOCALIDADE
+TB_DIM_PRODUTO
+TB_DIM_TEMPO
+TB_FATO_VENDA
+TB_VENDATOTAL
+NTV2_XML_DATA
+OGIS_GEOMETRY_COLUMNS
+OGIS_SPATIAL_REFERENCE_SYSTEMS
+RDF_PARAMETER
+... -> continua

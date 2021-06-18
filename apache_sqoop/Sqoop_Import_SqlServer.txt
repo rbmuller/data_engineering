@@ -1,0 +1,76 @@
+#### SQL SERVER ####
+
+# Conector SQL Server JDBC "sqljdbc42.jar" (segue em anexo)
+
+/opt/sqoop/lib
+
+# Conexão de Import - Sqoop
+
+sqoop import --connect 'jdbc:sqlserver://192.168.0.10:1433; database=WideWorldImportersDW' --username sa -P --table 'TB_VendasCidades' --target-dir 'hdfs:///mssqlserver/' -m 1
+
+hdfs dfs -ls /
+
+Found 6 items
+drwxr-xr-x   - hadoop supergroup          0 2018-06-14 18:18 /datasets
+drwxr-xr-x   - hadoop supergroup          0 2018-06-15 07:44 /mssqlserver
+drwxr-xr-x   - hadoop supergroup          0 2018-06-15 07:21 /oracle
+drwxr-xr-x   - hadoop supergroup          0 2018-06-15 00:38 /sqlserver
+drwx------   - hadoop supergroup          0 2018-06-14 17:23 /tmp
+drwxr-xr-x   - hadoop supergroup          0 2018-06-14 17:23 /user
+
+hdfs dfs -ls /mssqlserver
+
+Found 2 items
+-rw-r--r--   3 hadoop supergroup          0 2018-06-15 07:44 /mssqlserver/_SUCCESS
+-rw-r--r--   3 hadoop supergroup    2875564 2018-06-15 07:44 /mssqlserver/part-m-00000
+
+hdfs dfs -cat header /mssqlserver/part-m-00000
+
+Olivette,1,240.00,240.00
+Arrowbear Lake,2,30.00,180.00
+Bayou Cane,3,35.00,315.00
+Triadelphia,30,30.00,900.00
+Triadelphia,240,4.10,2952.00
+Tuscaloosa,40,48.00,1920.00
+Bernstein,150,1.05,315.00
+Cookietown,10,35.00,350.00
+Boynton,20,32.00,640.00
+Huntington Woods,40,99.00,3960.00
+New Plymouth,10,37.00,740.00
+Cloud Lake,80,24.00,1920.00
+Cotuit,60,5.00,600.00
+Moquino,40,20.00,800.00
+Jeromesville,20,4.10,82.00
+New Plymouth,7,240.00,1680.00
+Point Roberts,96,2.70,259.20
+... -> continua
+
+
+# Listar Databases
+sqoop list-databases --connect jdbc:sqlserver://192.168.0.10:1433 --username sa --P
+
+# Resultado 
+
+master
+tempdb
+model
+msdb
+ReportServer$SQL2016ENP
+ReportServer$SQL2016ENPTempDB
+DWDiagnostics
+DWConfiguration
+DWQueue
+WideWorldImporters
+WideWorldImportersDW
+DW_TESTE
+DBVendas
+DMVendas
+SSISDB
+DW
+HumanResources
+InternetSales
+ResellerSales
+Products
+Staging
+AWDataWarehouse
+AdventureWorks
