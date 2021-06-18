@@ -1,0 +1,3 @@
+boto3
+pyaml
+aws-cdk.aws-s3

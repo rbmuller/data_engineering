@@ -1,0 +1,23 @@
+Description: Criar bucket no S3
+
+Resources:
+
+  BucketMovidesk:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: prod-movilake-raw
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: True
+        BlockPublicPolicy: True
+        IgnorePublicAcls: True
+        RestrictPublicBuckets: True
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+
+  Bucket2Movidesk:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: prod-movilake-structured 

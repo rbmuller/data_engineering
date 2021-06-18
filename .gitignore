@@ -1,0 +1,6 @@
+__pycache__/
+.vscode/
+package/
+deployment-package.zip
+dev/
+/env-movilake
