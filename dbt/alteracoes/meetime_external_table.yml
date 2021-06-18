@@ -1,0 +1,56 @@
+version: 2
+
+sources:
+
+  - name: meetime
+    schema: spectrum
+    database: dev
+    tables:
+      - name: teste_partition
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/cadences'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID da empresa
+          - name: name
+            data_type: varchar(255)
+            description: Nome da empresa

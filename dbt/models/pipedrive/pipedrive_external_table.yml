@@ -1,0 +1,1540 @@
+version: 2
+
+sources:
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_activity
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/activity/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+          - name: due_date
+            description: Data de vencimento da atividade
+            data_type: varchar(25)
+          - name: due_time
+            description: Hora de vencimento da atividade em UTC
+            data_type: varchar(25)
+          - name: duration
+            description: Duração da atividade em horas e minutos 
+            data_type: varchar(25)
+          - name: deal_id
+            description: O id do deal associado com a atividade
+            data_type: integer
+          - name: person_id
+            description: O id da pessoa associado com a atividade
+            data_type: integer
+          - name: org_id
+            description: O id da empresa associado com a atividade
+            data_type: integer
+          - name: note
+            description: Notas da atividade em formato html 
+            data_type: varchar(255)
+          - name: location
+            description: O endereço da atividade. O pipedrive irá verificar se a loc bate com um endereço valido do Google Maps
+            data_type: varchar(255)
+          - name: public_description
+            description: Detalhes adicionais sincronizados no calendario externo
+            data_type: varchar(255) 
+          - name: id
+            data_type: varchar(20)
+            description: O id da atividade, gerado quando ela é criada
+          - name: done
+            data_type: boolean
+            description: 1 para atividade concluida e 0 para não concluida
+          - name: subject
+            description: Assunto da atividade 
+            data_type: varchar(50)
+          - name: type
+            description: Tipo da atividade Tem correlação com o parametro key_string dos tipos de atividade
+            data_type: varchar(50)
+          - name: user_id
+            description: O id do usuario ao qual a atividade esta associada 
+            data_type: integer
+          - name: participants
+            description: Lista de pessoas associadas com a atividade 
+            data_type: array<struct<person_id:integer, 
+                                    primary_flag:boolean,
+                                    lastUsage:varchar(50)>>
+          - name: busy_flag
+            description: Marca se a atividade esta setada como Livre ou Ocupado se marcado como Ocupado o cliente nao pode marcar agenda naquele slot de horario se deixar vazio automaticamente marca como ocupado              
+            data_type: boolean
+          - name: attendees
+            description: Participantes da atividade, podem ser contatos do pipedrive ou emails externos 
+            data_type: array<struct<email_address:varchar(50), 
+                                    is_organizer:integer,
+                                    name:varchar(50),
+                                    person_id:integer,
+                                    status:varchar(50),
+                                    user_id:integer>>
+
+          - name: company_id
+            data_type: integer
+            description: id da empresa do usuario 
+          - name: reference_type
+            data_type: varchar(50)
+            description: Referencias com outros objetos, Exemplo valor `Salesphone` refere para atividades criadas com a chamada
+          - name: reference_id
+            data_type: integer
+            description: Junto ao campo reference_type, retorna o id do objeto 
+          - name: conference_meeting_client
+            data_type: varchar(50)
+            description: id do app de Marketplace, o qual se conecta com esta atividade 
+          - name: conference_meeting_url
+            data_type: varchar(50)
+            description: Link do meeting associado a esta atividade
+          - name: conference_meeting_id
+            data_type: varchar(50)
+            description: id de origem do meeting (Zoom, MS Teams etc.) associado a atividade
+          - name: add_time
+            data_type: varchar(50)
+            description: data de criacao da atividade em UTC. formato YYYY-MM-DD HH:MM:SS
+          - name: marked_as_done_time
+            data_type: varchar(25)
+            description: Data que a atividade foi marcada como realizada. Formato YYYY-MM-DD HH:MM:SS
+          - name: last_notification_time
+            data_type: varchar(25)
+            description: Data da ultima notificacao enviada sobre esta atividade para os participantes 
+          - name: last_notification_user_id
+            data_type: integer
+            description: id de quem disparou a ultima notificacao sobre a atividade 
+          - name: notification_language_id
+            data_type: integer
+            description: id do idioma de envio da notificacao
+          - name: lead_id
+            description: id do lead no formato UUID 
+            data_type: varchar(20)
+            format: uuid
+          - name: active_flag
+            data_type: boolean
+            description: Marca se a atividade esta ativa ou nao 
+          - name: update_time
+            data_type: varchar(25)
+            description: ultimo update da atividade Formato YYYY-MM-DD HH:MM:SS
+          - name: update_user_id
+            description: id do usuario que fez o ultimo update na atividade 
+            data_type: integer
+          - name: gcal_event_id
+            data_type: varchar(20)
+            description: Para a atividade sincronizada com Google calendar, é Google event ID. Este campo será descontinuado no futuro (Pipedrive)
+          - name: google_calendar_id
+            data_type: varchar(20)
+            description: id do Google calendar ID ao qual a atividade sincroniza. 
+          - name: google_calendar_etag
+            data_type: varchar(20)
+            description: Google calendar API etag (versao) usado para sincronizar a atividade. 
+          - name: calendar_sync_include_context
+            data_type: varchar(20)
+            description: Para atividades que sincronizam com um calendario externo, indica se sincroniza com contexto (Deals, Persons, Organizations aos quais a atividade se relaciona)'
+          - name: source_timezone
+            data_type: varchar(20)
+            description: Timezone que a atividade foi criada no calendario externo 
+          - name: rec_rule
+            data_type: varchar(20)
+            description: Regra para recorrencia da Actividade, é importante para atividades sincronizadas no Pipedrive com origem em calendarios externos. Examplo RRULE FREQ=WEEKLY BYDAY=WE
+          - name: rec_rule_extension
+            data_type: varchar(20)
+            description: Regras adicionais para recorrencia da atividade, extende o `rec_rule`. 
+          - name: rec_master_activity_id
+            data_type: integer
+            description: id da atividade pai para uma atividade recorrente se a atividade atual é uma excessão as regras de recorrencia
+          - name: series
+            description: Lista de atividades recorrentes, estrutura de lista de dicionarios  
+            data_type: array<varchar(100)>
+          - name: created_by_user_id
+            description: id do usuario que criou a atividade  
+            data_type: integer
+          - name: location_subpremise
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indica numerdo do ap/casa 
+          - name: location_street_number
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indica numero da casa.
+          - name: location_route
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates street name.
+          - name: location_sublocality
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates district/sublocality.
+          - name: location_locality
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates city/town/village/locality.
+          - name: location_admin_area_level_1
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates state/county.
+          - name: location_admin_area_level_2
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates region.
+          - name: location_country
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates country.
+          - name: location_postal_code
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates ZIP/postal code.
+          - name: location_formatted_address
+            data_type: varchar(20)
+            description: subcampo do campo de localizacao. Indicates full/combined address.
+          - name: location_lat
+            data_type: integer
+            description: subcampo do campo de localizacao. Indicates latitude.
+          - name: location_long
+            data_type: integer
+            description: subcampo do campo de localizacao. Indicates longitude.
+          - name: org_name
+            description: Name of the Organization this Activity is associated with
+            data_type: varchar(50)
+          - name: person_name
+            description: Name of the Person this Activity is associated with
+            data_type: varchar(50)
+          - name: deal_title
+            description: Name of the Deal this Activity is associated with
+            data_type: varchar(50)
+          - name: owner_name
+            description: Name of the User this Activity is owned by
+            data_type: varchar(50)
+          - name: person_dropbox_bcc
+            data_type: varchar(50)
+            description: The bcc email address of the Person
+          - name: deal_dropbox_bcc
+            data_type: varchar(50)
+            description: The bcc email address of the Deal
+          - name: assigned_to_user_id
+            description: The ID of the User to whom the Activity is assigned to. Equal to `user_id`.
+            data_type: integer
+          - name: file
+            data_type: array<struct<id:varchar(50), clean_name:varchar(50),url:varchar(200)>>
+            description: 'The file that is attached to this Activity. For example, this can be a reference to an audio note file generated with Pipedrive mobile app.'   
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_activityFields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/activityFields/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+        - name: id
+          data_type: integer
+          description: The ID of the Field. Value is `null` in case of subfields.
+        - name: key
+          data_type: varchar(20) 
+          description: The key of the Field. For custom fields this is generated upon creation.
+        - name: name
+          data_type: varchar(50)
+          description: The name of the Field
+        - name: order_nr
+          data_type: integer
+          description: The order number of the Field
+        - name: field_type
+          data_type: varchar(20)
+          description: Type of the field 
+        - name: add_time
+          data_type: varchar(50)
+          format: datetime
+          description: The creation time of the Field
+        - name: update_time
+          data_type: varchar(50)
+          format: datetime
+          description: The update time of the Field
+        - name: last_updated_by_user_id
+          data_type: integer
+          description: 'The ID of the user who created or most recently updated the Field, only applicable for custom fields'
+        - name: active_flag
+          data_type: boolean
+          description: The active flag of the Field
+        - name: edit_flag
+          data_type: boolean
+          description: The edit flag of the Field
+        - name: index_visible_flag
+          data_type: boolean
+          description: Not used
+        - name: details_visible_flag
+          data_type: boolean
+          description: Not used
+        - name: add_visible_flag
+          data_type: boolean
+          description: Not used
+        - name: important_flag
+          data_type: boolean
+          description: Not used
+        - name: bulk_edit_allowed
+          data_type: boolean
+          description: Whether or not the Field of an Item can be edited in bulk
+        - name: searchable_flag
+          data_type: boolean
+          description: Whether ot not Items can be searched by this Field
+        - name: filtering_allowed
+          data_type: boolean
+          description: Whether or not Items can be filtered by this Field
+        - name: sortable_flag
+          data_type: boolean
+          description: Whether or not Items can be sorted by this Field
+        - name: mandatory_flag
+          data_type: boolean
+          description: Whether or not the Field is mandatory
+        - name: options
+          data_type: varchar(300)
+          description: 'The options of the Field. When there are no options, `null` is returned.'
+        - name: options_deleted
+          data_type: varchar(300)
+          description: The deleted options of the Field. Only present when there is at least 1 deleted option.
+        - name: is_subfield
+          data_type: boolean
+          description: Whether or not the Field is a subfield of another Field. Only present if Field is subfield.
+        - name: subfields
+          data_type: varchar(300)
+          description: Subfields of the Field. Only present when Field has subfields.  
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_deals
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/deal/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+        - name: id
+          data_type: integer
+          description: ID of the deal 
+        - name: creator_user_id
+          data_type: array<struct<id:integer, 
+                                  name:varchar(20),
+                                  email:varchar(50),
+                                  has_pic:boolean,
+                                  pic_hash:varchar(50),
+                                  active_flag:boolean,
+                                  value:integer>> 
+          description: ID, Name, email of deal creator                         
+        - name: user_id 
+          data_type: array<struct<id:integer,
+                                  name:varchar(20),
+                                  email:varchar(50),
+                                  has_pic:boolean,
+                                  pic_hash:boolean,
+                                  active_flag:boolean,
+                                  value:integer>>
+
+          description: Information about user who is associated with the deal 
+        - name: person_id
+          data_type: array<struct<active_flag:boolean,
+                                  name:varchar(20),
+                                  email:varchar(2000),
+                                  phone:varchar(2000),
+                                  value:integer>>
+          description: Information about People associated with the deal.                       
+        - name: org_id
+          data_type: array<struct<name:varchar(20),
+                                  people_count:integer,
+                                  owner_id:integer,
+                                  address:varchar(50),
+                                  active_flag:boolean,
+                                  cc_email:varchar(20),
+                                  value:integer>>
+          description: Information about the organization associated with the deal                                  
+        - name: stage_id
+          data_type: integer
+          description: The ID of the Deal stage
+        - name: title
+          data_type: varchar(100)
+          description: The title of the Deal
+        - name: value
+          data_type: float
+          description: The value of the deal     
+        - name: currency
+          data_type: float
+          description: The currency of the deal 
+        - name: add_time
+          data_type: varchar(25)
+          description: The creation date and time of the Deal
+        - name: update_time
+          data_type: varchar(25)
+          description: The last update date and time of the deal
+        - name: stage_change_time
+          data_type: varchar(25)
+          description: The last update date and time of the deal stage
+        - name: active
+          data_type: boolean
+          description: If the deal is activated or not 
+        - name: deleted
+          data_type: boolean
+          description: If the Deal is deleted or not
+        - name: status
+          data_type: varchar(20)
+          description: The status of the Deal
+        - name: probability
+          data_type: integer
+          description: The success probability percentage of the Deal           
+        - name: next_activity_date
+          data_type: varchar(25)
+          description: The date of the next activity associated with the Deal 
+        - name: next_activity_time
+          data_type: varchar(25)
+          description: The time of the next activity associated with the Deal          
+        - name:  next_activity_id
+          data_type: integer
+          description: The ID of the next activity associated with the Deal 
+        - name: last_activity_id
+          data_type: integer
+          description: The ID of the last activity associated with the Deal           
+        - name: last_activity_date
+          data_type: varchar(25)
+          description: The date of the last activity associated with the Deal 
+        - name: lost_reason
+          data_type: varchar(255)
+          description: The reason for losing the Deal
+        - name: visible_to
+          data_type: varchar(100)
+          description: The visibility of the Deal
+        - name: close_time
+          data_type: varchar(50)
+          description: The date and time of closing the Deal
+        - name: pipeline_id
+          data_type: integer
+          description: The ID of pipeline associated with the Deal
+        - name: won_time
+          data_type: varchar(50)
+          description: The date and time of changing the Deal status as won
+        - name: first_won_time
+          data_type: varchar(50)
+          description: The date and time of the first time changing the Deal status as won
+        - name: lost_time
+          data_type: varchar(50)
+          description: The date and time of changing the Deal status as lost
+        - name: products_count
+          data_type: integer
+          description: The number of Products associated with the Deal
+        - name: files_count
+          data_type: integer
+          description: The number of Files associated with the Deal
+        - name: notes_count
+          data_type: integer
+          description: The number of Notes associated with the Deal
+        - name: followers_count
+          data_type: integer
+          description: The number of Followers associated with the Deal
+        - name: email_messages_count
+          data_type: integer
+          description: The number of emails associated with the Deal
+        - name: activities_count
+          data_type: integer
+          description: The number of Activities associated with the Deal
+        - name: done_activities_count
+          data_type: integer
+          description: The number of completed Activities associated with the Deal
+        - name: undone_activities_count
+          data_type: integer
+          description: The number of incomplete Activities associated with the Deal
+        - name: participants_count
+          data_type: integer
+          description: The number of Participants associated with the Deal
+        - name: expected_close_date
+          data_type: varchar(50)
+          description: The expected close date of the Deal
+        - name: last_incoming_mail_time
+          data_type: varchar(50)
+          description: The date and time of the last incoming email associated with the Deal
+        - name: last_outgoing_mail_time
+          data_type: varchar(50)
+          description: The date and time of the last outgoing email associated with the Deal
+        - name: label
+          data_type: varchar(50)
+          description: The label assigned to the Deal
+        - name: stage_order_nr
+          data_type: integer
+          description: The order number of the Deal stage associated with the Deal
+        - name: person_name
+          data_type: varchar(50)
+          description: The name of the Person associated with the Deal
+        - name: org_name
+          data_type: varchar(50)
+          description: The name of the Organization associated with the Deal
+        - name: next_activity_subject
+          data_type: varchar(50)
+          description: The subject of the next activity associated with the Deal
+        - name: next_activity_data_type
+          data_type: varchar(50)
+          description: The data_type of the next activity associated with the Deal
+        - name: next_activity_duration
+          data_type: varchar(50)
+          description: The duration of the next activity associated with the Deal
+        - name: next_activity_note
+          data_type: varchar(50)
+          description: The note of the next activity associated with the Deal
+        - name: formatted_value
+          data_type: varchar(50)
+          description: The Deal value formatted with selected currency. E.g. US$500
+        - name: weighted_value
+          data_type: integer
+          description: 'Probability times Deal value. Probability can either be Deal probability or if not set, then stage probability.'
+        - name: formatted_weighted_value
+          data_type: varchar(50)
+          description: The weighted_value formatted with selected currency. E.g. US$500
+        - name: weighted_value_currency
+          data_type: varchar(50)
+          description: The currency associated with the Deal
+        - name: rotten_time
+          data_type: varchar(50)
+          description: The date and time of changing the Deal status as rotten
+        - name: owner_name
+          data_type: varchar(50)
+          description: The name of the Deal owner
+        - name: cc_email
+          data_type: varchar(50)
+          description: The Cc email of the Deal
+        - name: org_hidden
+          data_type: boolean
+          description: If the Organization that is associated with the Deal is hidden or not
+        - name: person_hidden
+          data_type: boolean
+          description: If the Person that is associated with the Deal is hidden or not
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_dealsFields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/dealFields/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:        
+          - name: id
+            data_type: integer
+            description: The ID of the Field. Value is `null` in case of subfields.
+          - name: key 
+            data_type: varchar(25)
+            description: The key of the Field. For custom fields this is generated upon creation.
+          - name: name
+            data_type: varchar(25)
+            description: The name of the Field
+          - name: order_nr
+            data_type: integer
+            description: The order number of the Field
+          - name: field_type
+            data_type: varchar(25)
+            description: The type of the field
+          - name: add_time
+            data_type: varchar(25)
+            description: The creation time of the Field
+          - name: update_time
+            data_type: varchar(25)
+            description: The update time of the Field
+          - name: last_updated_by_user_id
+            data_type: integer
+            description: 'The ID of the user who created or most recently updated the Field, only applicable for custom fields'
+          - name: active_flag
+            data_type: boolean
+            description: The active flag of the Field
+          - name: edit_flag
+            data_type: boolean
+            description: The edit flag of the Field
+          - name: index_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: details_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: add_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: important_flag
+            data_type: boolean
+            description: Not used
+          - name: bulk_edit_allowed
+            data_type: boolean
+            description: Whether or not the Field of an Item can be edited in bulk
+          - name: searchable_flag
+            data_type: boolean
+            description: Whether ot not Items can be searched by this Field
+          - name: filtering_allowed
+            data_type: boolean
+            description: Whether or not Items can be filtered by this Field
+          - name: sortable_flag
+            data_type: boolean
+            description: Whether or not Items can be sorted by this Field
+          - name: mandatory_flag
+            data_type: boolean
+            description: Whether or not the Field is mandatory
+          - name: options
+            data_type: varchar(1000)
+            description: The options of the Field. When there are no options, `null` is returned.  
+          - name: options_deleted
+            data_type: varchar(1000)
+            description: The deleted options of the Field. Only present when there is at least 1 deleted option.
+          - name: is_subfield
+            data_type: boolean
+            description: Whether or not the Field is a subfield of another Field. Only present if Field is subfield.
+          - name: subfields
+            data_type: varchar(1000)
+            description: Subfields of the Field. Only present when Field has subfields.
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_files
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/file/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:  
+          - name: id
+            data_type: integer
+            description: The ID of the File
+          - name: user_id
+            data_type: integer
+            description: The ID of the User to associate the File with
+          - name: deal_id
+            data_type: integer
+            description: The ID of the Deal to associate the File with
+          - name: person_id
+            data_type: integer
+            description: The ID of the Person to associate the File with
+          - name: org_id
+            data_type: integer
+            description: The ID of the Organization to associate the File with
+          - name: product_id
+            data_type: integer
+            description: The ID of the Product to associate the File with
+          - name: activity_id
+            data_type: integer
+            description: The ID of the Activity to associate the File with
+          - name: add_time
+            data_type: varchar(25)
+            description: 'The date and time when the File was added/created. Format: YYYY-MM-DD HH:MM:SS'
+          - name: update_time
+            data_type: varchar(25)
+            description: 'The last updated date and time of the File. Format: YYYY-MM-DD HH:MM:SS'
+          - name: file_name
+            data_type: varchar(25)
+            description: The original name of the File
+          - name: file_size
+            data_type: varchar(25)
+            description: The size of the File
+          - name: active_flag
+            data_type: boolean
+            description: 'Whether the User is active or not. false = Not activated, true = Activated'
+          - name: inline_flag
+            data_type: boolean
+            description: Whether the File was uploaded as inline or not
+          - name: remote_location
+            data_type: varchar(25)
+            description: The location data_type to send the File to. Only googledrive is supported at the moment.
+          - name: remote_id
+            data_type: varchar(25)
+            description: The ID of the remote item
+          - name: cid
+            data_type: varchar(25)
+            description: The ID of the inline attachment
+          - name: s3_bucket
+            data_type: varchar(100)
+            description: The location of the cloud storage
+          - name: mail_message_id
+            data_type: varchar(25)
+            description: The ID of the mail message to associate the File with
+          - name: mail_template_id
+            data_type: varchar(25)
+            description: The ID of the mail template to associate the File with
+          - name: deal_name
+            data_type: varchar(25)
+            description: The name of the Deal associated with the File
+          - name: person_name
+            data_type: varchar(25)
+            description: The name of the Person associated with the File
+          - name: org_name
+            data_type: varchar(25)
+            description: The name of the Organization associated with the File
+          - name: product_name
+            data_type: varchar(25)
+            description: The name of the Product associated with the File
+          - name: url
+            data_type: varchar(50)
+            description: The URL of the download File
+          - name: name
+            data_type: varchar(50)
+            description: The visible name of the File
+          - name: description
+            data_type: varchar(255)
+            description: The description of the File  
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_filters
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/filter/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+          - name: id
+            data_type: integer
+            description: The ID of the filter
+          - name: name
+            data_type: varchar(25)
+            description: The name of the filter
+          - name: active_flag
+            data_type: boolean
+            description: The active flag of the filter
+          - name: type
+            data_type: varchar(25)
+            description: The type of the item
+          - name: user_id
+            data_type: integer
+            description: The owner of the filter
+          - name: add_time
+            data_type: varchar(25)
+            description: The date and time when the filter was added
+          - name: update_time
+            data_type: varchar(25)
+            description: The date and time when the filter was updated
+          - name: visible_to
+            data_type: integer
+            description: The visibility group ID of who can see then filter
+          - name: custom_view_id
+            data_type: integer
+            description: Used by Pipedrive webapp
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_notes
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/note/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+          - name: id
+            data_type: integer
+            description: The ID of the Note
+          - name: active_flag
+            data_type: boolean
+            description: If Note is active or deleted
+          - name: add_time
+            data_type: varchar(25)
+            description: The creation date and time of the Note
+          - name: content
+            data_type: varchar(25)
+            description: Content of the Note in HTML format. Subject to sanitization on the back-end.
+          - name: deal
+            data_type: array<struct<title:varchar(50)>>
+            description: The Deal this Note is attached to
+          - name: lead_id
+            data_type: varchar(25)
+            description: The ID of the Lead the Note is attached to
+          - name: deal_id
+            data_type: integer
+            description: The ID of the Deal the Note is attached to
+          - name: last_update_user_id
+            data_type: integer
+            description: The ID of the User who updated the Note last
+          - name: org_id
+            data_type: integer
+            description: The ID of the Organization this Note is attached to
+          - name: organization
+            data_type: array<struct<name:varchar(25)>>
+            description: The name of the Organization this Note is attached to
+          - name: person
+            data_type: array<struct<name:varchar(25)>>
+            description: The Person this Note is attached to
+          - name: person_id
+            data_type: integer
+            description: The ID of the Person this Note is attached to
+          - name: pinned_to_deal_flag
+            data_type: boolean
+            description: 'If true, then the results are filtered by Note to Deal pinning state.'
+          - name: pinned_to_organization_flag
+            data_type: boolean
+            description: 'If true, then the results are filtered by Note to Organization pinning state.'
+          - name: pinned_to_person_flag
+            data_type: boolean
+            description: 'If true, then the results are filtered by Note to Person pinning state.'
+          - name: update_time
+            data_type: varchar(25)
+            description: The last updated date and time of the Note
+          - name: user
+            data_type: array<struct<email:varchar(25), 
+                                    icon_url:varchar(50),
+                                    is_you:boolean,
+                                    name:varchar(25)>>
+
+            description: The User who created the Note
+          - name: user_id
+            data_type: integer
+            description: The ID of the Note creator
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_notesFields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/noteFields/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+          - name: id
+            data_type: integer
+            description: The ID of the Field. Value is `null` in case of subfields.
+          - name: key 
+            data_type: varchar(25)
+            description: The key of the Field. For custom fields this is generated upon creation.
+          - name: name
+            data_type: varchar(25)
+            description: The name of the Field
+          - name: field_type
+            data_type: varchar(25)
+            description: The type of the field
+          - name: active_flag
+            data_type: boolean
+            description: The active flag of the Field
+          - name: edit_flag
+            data_type: boolean
+            description: The edit flag of the Field
+          - name: bulk_edit_allowed
+            data_type: boolean
+            description: Whether or not the Field of an Item can be edited in bulk
+          - name: mandatory_flag
+            data_type: boolean
+            description: Whether or not the Field is mandatory
+          - name: options
+            data_type: varchar(1000)
+            description: The options of the Field. When there are no options, `null` is returned.  
+         
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_organization
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/organization/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:       
+          - name: id
+            data_type: integer
+            description: The ID of the Organization
+          - name: company_id
+            data_type: integer
+            description: The ID of the company related to the organization
+          - name: owner_id
+            data_type: array<struct<id:integer,
+                                    name:varchar(25),
+                                    email:varchar(50),
+                                    has_pic:integer,
+                                    pic_hash:varchar(50),
+                                    active_flag:boolean,
+                                    value:integer>>
+            description: Info about the owner of the organization
+          - name: name
+            data_type: varchar(50)
+            description: The name of the organization
+          - name: active_flag
+            data_type: boolean
+            description: If the Organization is activated or not  
+          - name: picture_id
+            data_type: array<struct<item_type:varchar(20),
+                                    item_id:integer,
+                                    active_flag:boolean,
+                                    add_time:varchar(25),
+                                    update_time:varchar(25),
+                                    added_by_user_id:integer,
+                                    pictures:varchar(3000),
+                                    value:integer>>
+          - name: country_code
+            data_type: varchar(3)
+            description: The country code of the Organization
+          - name: first_char
+            data_type: varchar(1)
+            description: The first character of the Organization name
+          - name: add_time
+            data_type: varchar(25)
+            description: The creation date and time of the Organization
+          - name: update_time
+            data_type: varchar(25)
+            description: The last updated date and time of the Organization
+          - name: visible_to
+            data_type: varchar(25)
+            description: The visibility group ID of who can see the Organization
+          - name: label
+            data_type: integer
+            description: The ID of the label
+          - name: owner_name
+            data_type: varchar(25)
+            description: The name of the Organization owner
+          - name: cc_email
+            data_type: varchar(30)
+            description: The CC email of the Organization
+          - name: email_messages_count
+            data_type: integer
+            description: The count of email messages related to the Organization
+          - name: people_count
+            data_type: integer
+            description: The count of Persons related to the Organization
+          - name: activities_count
+            data_type: integer
+            description: The count of Activities related to the Organization
+          - name: done_activities_count
+            data_type: integer
+            description: The count of done Activities related to the Organization
+          - name: undone_activities_count
+            data_type: integer
+            description: The count of undone Activities related to the Organization
+          - name: files_count
+            data_type: integer
+            description: The count of files related to the Organization
+          - name: notes_count
+            data_type: integer
+            description: The count of notes related to the Organization
+          - name: followers_count
+            data_type: integer
+            description: The count of followers related to the Organization
+          - name: address
+            data_type: varchar(50)
+            description: The full address of the Organization
+          - name: address_subpremise
+            data_type: varchar(50)
+            description: The sub-premise of the Organization location
+          - name: address_street_number
+            data_type: varchar(50)
+            description: The street number of the Organization location
+          - name: address_route
+            data_type: varchar(50)
+            description: The route of the Organization location
+          - name: address_sublocality
+            data_type: varchar(50)
+            description: The sub-locality of the Organization location
+          - name: address_locality
+            data_type: varchar(50)
+            description: The locality of the Organization location
+          - name: address_admin_area_level_1
+            data_type: varchar(50)
+            description: The level 1 admin area of the Organization location
+          - name: address_admin_area_level_2
+            data_type: varchar(50)
+            description: The level 2 admin area of the Organization location
+          - name: address_country
+            data_type: varchar(50)
+            description: The country of the Organization location
+          - name: address_postal_code
+            data_type: varchar(50)
+            description: The postal code of the Organization location
+          - name: address_formatted_address
+            data_type: varchar(50)
+            description: The formatted Organization location 
+          - name: open_deals_count
+            data_type: integer
+            description: The count of open Deals related with the item
+          - name: related_open_deals_count
+            data_type: integer
+            description: The count of related open Deals related with the item
+          - name: closed_deals_count
+            data_type: integer
+            description: The count of closed Deals related with the item
+          - name: related_closed_deals_count
+            data_type: integer
+            description: The count of related closed Deals related with the item
+          - name: won_deals_count
+            data_type: integer
+            description: The count of won Deals related with the item
+          - name: related_won_deals_count
+            data_type: integer
+            description: The count of related won Deals related with the item
+          - name: lost_deals_count
+            data_type: integer
+            description: The count of lost Deals related with the item
+          - name: related_lost_deals_count
+            data_type: integer
+            description: The count of related lost Deals related with the item
+          - name: next_activity_date
+            data_type: varchar(50)
+            description: The date of the next activity associated with the Deal
+          - name: next_activity_time
+            data_type: varchar(50)
+            description: The time of the next activity associated with the Deal
+          - name: next_activity_id
+            data_type: integer
+            description: The ID of the next activity associated with the Deal
+          - name: last_activity_id
+            data_type: integer
+            description: The ID of the last activity associated with the Deal
+          - name: last_activity_date
+            data_type: varchar(50)
+            description: The date of the last activity associated with the Deal  
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_organizationFields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/organizationFields/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:          
+          - name: id
+            data_type: integer
+            description: The ID of the Field. Value is `null` in case of subfields.
+          - name: key
+            data_type: varchar(20) 
+            description: The key of the Field. For custom fields this is generated upon creation.
+          - name: name
+            data_type: varchar(50)
+            description: The name of the Field
+          - name: order_nr
+            data_type: integer
+            description: The order number of the Field
+          - name: field_type
+            data_type: varchar(20)
+            description: Type of the field 
+          - name: add_time
+            data_type: varchar(50)
+            format: datetime
+            description: The creation time of the Field
+          - name: update_time
+            data_type: varchar(50)
+            format: datetime
+            description: The update time of the Field
+          - name: last_updated_by_user_id
+            data_type: integer
+            description: 'The ID of the user who created or most recently updated the Field, only applicable for custom fields'
+          - name: active_flag
+            data_type: boolean
+            description: The active flag of the Field
+          - name: edit_flag
+            data_type: boolean
+            description: The edit flag of the Field
+          - name: index_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: details_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: add_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: important_flag
+            data_type: boolean
+            description: Not used
+          - name: bulk_edit_allowed
+            data_type: boolean
+            description: Whether or not the Field of an Item can be edited in bulk
+          - name: searchable_flag
+            data_type: boolean
+            description: Whether ot not Items can be searched by this Field
+          - name: filtering_allowed
+            data_type: boolean
+            description: Whether or not Items can be filtered by this Field
+          - name: sortable_flag
+            data_type: boolean
+            description: Whether or not Items can be sorted by this Field
+          - name: mandatory_flag
+            data_type: boolean
+            description: Whether or not the Field is mandatory
+          - name: options
+            data_type: varchar(2000)
+            description: 'The options of the Field. When there are no options, `null` is returned.'
+          - name: options_deleted
+            data_type: varchar(2000)
+            description: The deleted options of the Field. Only present when there is at least 1 deleted option.
+          - name: is_subfield
+            data_type: boolean
+            description: Whether or not the Field is a subfield of another Field. Only present if Field is subfield.
+          - name: subfields
+            data_type: varchar(2000)
+            description: Subfields of the Field. Only present when Field has subfields. 
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_persons
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/person/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:          
+          - name: id
+            data_type: integer
+            description: The ID of the Person
+          - name: company_id
+            data_type: integer
+            description: The ID of the Company related to the Person
+          - name: active_flag
+            data_type: boolean
+            description: If the Person is activated or not
+          - name: phone
+            data_type: varchar(2000)
+            description: List of phone data related to the Person
+          - name: email
+            data_type: varchar(2000)
+            description: List of email data related to the Person
+          - name: first_char
+            data_type: varchar(25)
+            description: The first letter of the name of the Person
+          - name: add_time
+            data_type: varchar(25)
+            description: 'The date and time when the Person was added/created. Format: YYYY-MM-DD HH:MM:SS'
+          - name: update_time
+            data_type: varchar(25)
+            description: 'The last updated date and time of the Person. Format: YYYY-MM-DD HH:MM:SS'
+          - name: visible_to
+            data_type: varchar(5)
+            description: The visibility group ID of who can see the Person
+          - name: picture_id
+            data_type: array<struct<item_type:varchar(20),
+                                    item_id:integer,
+                                    active_flag:boolean,
+                                    add_time:varchar(25),
+                                    update_time:varchar(25),
+                                    added_by_user_id:integer,
+                                    pictures:varchar(3000)>>
+            description: The ID of the picture associated with the item
+          - name: label
+            data_type: integer
+            description: The label assigned to the Person
+          - name: org_name
+            data_type: varchar(50)
+            description: The name of the Organization associated with the Person
+          - name: owner_name
+            data_type: varchar(50)
+            description: The name of the owner associated with the Person
+          - name: cc_email
+            data_type: varchar(50)
+            description: The CC email associated with the Person
+          - name: owner_id
+            data_type: array<struct<id:integer,
+                                    name:varchar(30),
+                                    email:varchar(50),
+                                    has_pic:integer,
+                                    pic_hash:varchar(100),
+                                    active_flag:boolean,
+                                    value:integer>>
+            description: The ID of the owner
+          - name: org_id
+            data_type: array<struct<name:varchar(50),
+                                    people_count:integer,
+                                    owner_id:integer,
+                                    address:varchar(100),
+                                    active_flag:boolean,
+                                    cc_email:varchar(100)>>
+            description: The id of the organization
+          - name: name
+            data_type: varchar(50)
+            description: The name of the Person
+          - name: first_name
+            data_type: varchar(50)
+            description: The first name of the Person
+          - name: last_name
+            data_type: varchar(50)
+            description: The last name of the Person
+          - name: email_messages_count
+            data_type: integer
+            description: The count of email messages related to the Person
+          - name: activities_count
+            data_type: integer
+            description: The count of activities related to the Person
+          - name: done_activities_count
+            data_type: integer
+            description: The count of done activities related to the Person
+          - name: undone_activities_count
+            data_type: integer
+            description: The count of undone activities related to the Person
+          - name: files_count
+            data_type: integer
+            description: The count of files related to the Person
+          - name: notes_count
+            data_type: integer
+            description: The count of notes related to the Person
+          - name: followers_count
+            data_type: integer
+            description: The count of followers related to the Person
+          - name: last_incoming_mail_time
+            data_type: varchar(25)
+            description: The date and time of the last incoming email associated with the Person
+          - name: last_outgoing_mail_time
+            data_type: varchar(25)
+            description: The date and time of the last outgoing email associated with the Person
+          - name: open_deals_count
+            data_type: integer
+            description: The count of open Deals related with the item
+          - name: related_open_deals_count
+            data_type: integer
+            description: The count of related open Deals related with the item
+          - name: closed_deals_count
+            data_type: integer
+            description: The count of closed Deals related with the item
+          - name: related_closed_deals_count
+            data_type: integer
+            description: The count of related closed Deals related with the item
+          - name: won_deals_count
+            data_type: integer
+            description: The count of won Deals related with the item
+          - name: related_won_deals_count
+            data_type: integer
+            description: The count of related won Deals related with the item
+          - name: lost_deals_count
+            data_type: integer
+            description: The count of lost Deals related with the item
+          - name: related_lost_deals_count
+            data_type: integer
+            description: The count of related lost Deals related with the item
+          - name: next_activity_date
+            data_type: varchar(25)
+            description: The date of the next activity associated with the Deal
+          - name: next_activity_time
+            data_type: varchar(25)
+            description: The time of the next activity associated with the Deal
+          - name: next_activity_id
+            data_type: integer
+            description: The ID of the next activity associated with the Deal
+          - name: last_activity_id
+            data_type: integer
+            description: The ID of the last activity associated with the Deal
+          - name: last_activity_date
+            data_type: varchar(25)
+            description: The date of the last activity associated with the Deal 
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_personFields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/personFields/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns: 
+          - name: id
+            data_type: integer
+            description: The ID of the Field. Value is `null` in case of subfields.
+          - name: key
+            data_type: varchar(20) 
+            description: The key of the Field. For custom fields this is generated upon creation.
+          - name: name
+            data_type: varchar(50)
+            description: The name of the Field
+          - name: order_nr
+            data_type: integer
+            description: The order number of the Field
+          - name: field_type
+            data_type: varchar(20)
+            description: Type of the field 
+          - name: add_time
+            data_type: varchar(50)
+            format: datetime
+            description: The creation time of the Field
+          - name: update_time
+            data_type: varchar(50)
+            format: datetime
+            description: The update time of the Field
+          - name: last_updated_by_user_id
+            data_type: integer
+            description: 'The ID of the user who created or most recently updated the Field, only applicable for custom fields'
+          - name: active_flag
+            data_type: boolean
+            description: The active flag of the Field
+          - name: edit_flag
+            data_type: boolean
+            description: The edit flag of the Field
+          - name: index_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: details_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: add_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: important_flag
+            data_type: boolean
+            description: Not used
+          - name: bulk_edit_allowed
+            data_type: boolean
+            description: Whether or not the Field of an Item can be edited in bulk
+          - name: searchable_flag
+            data_type: boolean
+            description: Whether ot not Items can be searched by this Field
+          - name: filtering_allowed
+            data_type: boolean
+            description: Whether or not Items can be filtered by this Field
+          - name: sortable_flag
+            data_type: boolean
+            description: Whether or not Items can be sorted by this Field
+          - name: mandatory_flag
+            data_type: boolean
+            description: Whether or not the Field is mandatory
+          - name: options
+            data_type: varchar(100)
+            description: The options of the Field. When there are no options, null is returned
+        #  - name: options_deleted
+        #    data_type: varchar(100)
+        #    description: The deleted options of the Field. Only present when there is at least 1 deleted option.
+        #  - name: is_subfield
+        #    data_type: boolean
+        #    description: Whether or not the Field is a subfield of another Field. Only present if Field is subfield.
+        #  - name: subfields
+        #    data_type: array
+        #    description: Subfields of the Field. Only present when Field has subfields. 
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_productFields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/productFields/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+          - name: id
+            data_type: integer
+            description: The ID of the Field. Value is `null` in case of subfields.
+          - name: key
+            data_type: varchar(20) 
+            description: The key of the Field. For custom fields this is generated upon creation.
+          - name: name
+            data_type: varchar(50)
+            description: The name of the Field
+          - name: order_nr
+            data_type: integer
+            description: The order number of the Field
+          - name: field_type
+            data_type: varchar(20)
+            description: Type of the field 
+          - name: add_time
+            data_type: varchar(50)
+            format: datetime
+            description: The creation time of the Field
+          - name: update_time
+            data_type: varchar(50)
+            format: datetime
+            description: The update time of the Field
+          - name: last_updated_by_user_id
+            data_type: integer
+            description: 'The ID of the user who created or most recently updated the Field, only applicable for custom fields'
+          - name: active_flag
+            data_type: boolean
+            description: The active flag of the Field
+          - name: edit_flag
+            data_type: boolean
+            description: The edit flag of the Field
+          - name: index_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: details_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: add_visible_flag
+            data_type: boolean
+            description: Not used
+          - name: important_flag
+            data_type: boolean
+            description: Not used
+          - name: bulk_edit_allowed
+            data_type: boolean
+            description: Whether or not the Field of an Item can be edited in bulk
+          - name: searchable_flag
+            data_type: boolean
+            description: Whether ot not Items can be searched by this Field
+          - name: filtering_allowed
+            data_type: boolean
+            description: Whether or not Items can be filtered by this Field
+          - name: sortable_flag
+            data_type: boolean
+            description: Whether or not Items can be sorted by this Field
+          - name: options
+            data_type: array<struct<id:integer,
+                                    label:varchar(50)>>
+            description: field color 
+          - name: mandatory_flag
+            data_type: boolean
+            description: Whether or not the Product Field is mandatory when creating products
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_stage
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/stage/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:
+          - name: id
+            data_type: integer
+            description: The ID of the Stage
+          - name: order_nr
+            data_type: integer
+            description: Defines the order of the Stage
+          - name: name
+            data_type: varchar(25)
+            description: The name of the Stage
+          - name: active_flag
+            data_type: boolean
+            description: If the Stage is active or deleted
+          - name: deal_probability
+            data_type: integer
+            description: The Deal success probability percentage. Used/shown when the Deal weighted values are used.
+          - name: pipeline_id
+            data_type: integer
+            description: The ID of the Pipeline to add the Stage to
+          - name: rotten_flag
+            data_type: integer
+            description: Whether Deals in this Stage can become rotten
+          - name: rotten_days
+            data_type: integer
+            description: The number of days the Deals are not updated in this Stage would become rotten. Applies only if the `rotten_flag` is set.
+          - name: add_time
+            data_type: varchar(25)
+            description: 'The Stage creation time. Format: YYYY-MM-DD HH:MM:SS.'
+          - name: update_time
+            data_type: varchar(25)
+            description: 'The Stage update time. Format: YYYY-MM-DD HH:MM:SS.'
+          - name: pipeline_name
+            data_type: varchar(25)
+            description: The name of the Pipeline
+          - name: pipeline_deal_probability
+            data_type: boolean
+            description: Pipeline Deal probability. When `true`, overrides the Stage 
+
+  - name: pipedrive
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: pipedrive_user
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/pipedrive/user/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+        columns:   
+        - name: id
+          data_type: integer
+          description: The User ID
+        - name: name
+          data_type: varchar(25)
+          description: The User name
+        - name: default_currency
+          data_type: varchar(10)
+          description: The User default currency
+        - name: locale
+          data_type: varchar(25)
+          description: The User locale
+        - name: lang
+          data_type: integer
+          description: The User language ID
+        - name: email
+          data_type: varchar(25)
+          description: The User email
+        - name: phone
+          data_type: varchar(25)
+          description: The User phone
+        - name: activated
+          data_type: boolean
+          description: Boolean that indicates if the User is activated
+        - name: last_login
+          data_type: varchar(25)
+          description: 'The User last login date and time. Format: YYYY-MM-DD HH:MM:SS'
+        - name: created
+          data_type: varchar(25)
+          description: 'The User creation date and time. Format: YYYY-MM-DD HH:MM:SS'
+        - name: modified
+          data_type: varchar(25)
+          description: 'The User last modification date and time. Format: YYYY-MM-DD HH:MM:SS'
+        - name: signup_flow_variation
+          data_type: varchar(25)
+          nullable: true
+          description: The variation of signup flow (if exists). E.g. google
+        - name: has_created_company
+          data_type: boolean
+          description: Boolean that indicates if the User has created a Company
+        - name: is_admin
+          data_type: array<struct<title:integer>>
+          description: 'Indication if the User is admin (1 = true, 0 = false)'
+        - name: active_flag
+          data_type: boolean
+          description: Boolean that indicates if the User is activated
+        - name: timezone_name
+          data_type: varchar(25)
+          description: The User timezone name
+        - name: timezone_offset
+          data_type: varchar(25)
+          description: The User timezone offset
+        - name: role_id
+          data_type: integer
+          description: The ID of the User role
+        - name: icon_url
+          data_type: varchar(25)
+          nullable: true
+          description: The User icon URL
+        - name: is_you
+          data_type: boolean
+          description: 'Boolean that indicates if the requested User is the same which is logged in (in this case, always true)'          

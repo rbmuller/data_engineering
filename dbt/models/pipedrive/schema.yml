@@ -1,0 +1,196 @@
+
+version: 2
+
+models:
+    - name: pipedrive_activity
+      description: Tabela com as atividades do pipedrive
+      meta:
+        owner: "robson"
+      columns:
+        - name: due_date
+          description: Data de vencimento da atividade
+          type: string
+        - name: due_time
+          description: Hora de vencimento da atividade em UTC
+          type: string
+        - name: duration
+          description: Duração da atividade em horas e minutos 
+          type: string
+        - name: deal_id
+          description: O id do deal associado com a atividade
+          type: integer
+        - name: person_id
+          description: O id da pessoa associado com a atividade
+          type: integer
+        - name: org_id
+          description: O id da empresa associado com a atividade
+          type: integer
+        - name: note
+          description: Notas da atividade em formato html 
+          type: string
+        - name: location
+          description: O endereço da atividade. O pipedrive irá verificar se a loc bate com um endereço valido do Google Maps
+          type: string
+        - name: public_description
+          description: Detalhes adicionais sincronizados no calendario externo
+          type: string 
+        - name: id
+          type: string
+          description: O id da atividade, gerado quando ela é criada
+        - name: done
+          type: boolean
+          description: 1 para atividade concluida e 0 para não concluida
+        - name: subject
+          description: Assunto da atividade 
+          type: string
+        - name: type
+          description: Tipo da atividade Tem correlação com o parametro key_string dos tipos de atividade
+          type: string
+        - name: user_id
+          description: O id do usuario ao qual a atividade esta associada 
+          type: integer
+        - name: participants
+          description: Lista de pessoas associadas com a atividade 
+          type: array<varchar(100)>
+        - name: busy_flag
+          description: Marca se a atividade esta setada como Livre ou Ocupado se marcado como Ocupado o cliente nao pode marcar agenda naquele slot de horario se deixar vazio automaticamente marca como ocupado              
+          type: boolean
+        - name: attendees
+          description: Participantes da atividade, podem ser contatos do pipedrive ou emails externos 
+          type: array
+        - name: company_id
+          type: integer
+          description: id da empresa do usuario 
+        - name: reference_type
+          type: string
+          description: Referencias com outros objetos, Exemplo valor `Salesphone` refere para atividades criadas com a chamada
+        - name: reference_id
+          type: integer
+          description: Junto ao campo reference_type, retorna o id do objeto 
+        - name: conference_meeting_client
+          type: string
+          description: id do app de Marketplace, o qual se conecta com esta atividade 
+        - name: conference_meeting_url
+          type: string
+          description: Link do meeting associado a esta atividade
+        - name: conference_meeting_id
+          type: string
+          description: id de origem do meeting (Zoom, MS Teams etc.) associado a atividade
+        - name: add_time
+          type: string
+          description: data de criacao da atividade em UTC. formato YYYY-MM-DD HH:MM:SS
+        - name: marked_as_done_time
+          type: string
+          description: Data que a atividade foi marcada como realizada. Formato YYYY-MM-DD HH:MM:SS
+        - name: last_notification_time
+          type: string
+          description: Data da ultima notificacao enviada sobre esta atividade para os participantes 
+        - name: last_notification_user_id
+          type: integer
+          description: id de quem disparou a ultima notificacao sobre a atividade 
+        - name: notification_language_id
+          type: integer
+          description: id do idioma de envio da notificacao
+        - name: lead_id
+          description: id do lead no formato UUID 
+          type: string
+          format: uuid
+        - name: active_flag
+          type: boolean
+          description: Marca se a atividade esta ativa ou nao 
+        - name: update_time
+          type: string
+          description: ultimo update da atividade Formato YYYY-MM-DD HH:MM:SS
+        - name: update_user_id
+          description: id do usuario que fez o ultimo update na atividade 
+          type: integer
+        - name: gcal_event_id
+          type: string
+          description: Para a atividade sincronizada com Google calendar, é Google event ID. Este campo será descontinuado no futuro (Pipedrive)
+        - name: google_calendar_id
+          type: string
+          description: id do Google calendar ID ao qual a atividade sincroniza. 
+        - name: google_calendar_etag
+          type: string
+          description: Google calendar API etag (versao) usado para sincronizar a atividade. 
+        - name: calendar_sync_include_context
+          type: string
+          description: Para atividades que sincronizam com um calendario externo, indica se sincroniza com contexto (Deals, Persons, Organizations aos quais a atividade se relaciona)'
+        - name: source_timezone
+          type: string
+          description: Timezone que a atividade foi criada no calendario externo 
+        - name: rec_rule
+          type: string
+          description: Regra para recorrencia da Actividade, é importante para atividades sincronizadas no Pipedrive com origem em calendarios externos. Examplo RRULE FREQ=WEEKLY BYDAY=WE
+        - name: rec_rule_extension
+          type: string
+          description: Regras adicionais para recorrencia da atividade, extende o `rec_rule`. 
+        - name: rec_master_activity_id
+          type: integer
+          description: id da atividade pai para uma atividade recorrente se a atividade atual é uma excessão as regras de recorrencia
+        - name: series
+          description: Lista de atividades recorrentes, estrutura de lista de dicionarios  
+          type: array
+        - name: created_by_user_id
+          description: id do usuario que criou a atividade  
+          type: integer
+        - name: location_subpremise
+          type: string
+          description: subcampo do campo de localizacao. Indica numerdo do ap/casa 
+        - name: location_street_number
+          type: string
+          description: subcampo do campo de localizacao. Indica numero da casa.
+        - name: location_route
+          type: string
+          description: subcampo do campo de localizacao. Indicates street name.
+        - name: location_sublocality
+          type: string
+          description: subcampo do campo de localizacao. Indicates district/sublocality.
+        - name: location_locality
+          type: string
+          description: subcampo do campo de localizacao. Indicates city/town/village/locality.
+        - name: location_admin_area_level_1
+          type: string
+          description: subcampo do campo de localizacao. Indicates state/county.
+        - name: location_admin_area_level_2
+          type: string
+          description: subcampo do campo de localizacao. Indicates region.
+        - name: location_country
+          type: string
+          description: subcampo do campo de localizacao. Indicates country.
+        - name: location_postal_code
+          type: string
+          description: subcampo do campo de localizacao. Indicates ZIP/postal code.
+        - name: location_formatted_address
+          type: string
+          description: subcampo do campo de localizacao. Indicates full/combined address.
+        - name: location_lat
+          type: number
+          description: subcampo do campo de localizacao. Indicates latitude.
+        - name: location_long
+          type: number
+          description: subcampo do campo de localizacao. Indicates longitude.
+        - name: org_name
+          description: Name of the Organization this Activity is associated with
+          type: string
+        - name: person_name
+          description: Name of the Person this Activity is associated with
+          type: string
+        - name: deal_title
+          description: Name of the Deal this Activity is associated with
+          type: string
+        - name: owner_name
+          description: Name of the User this Activity is owned by
+          type: string
+        - name: person_dropbox_bcc
+          type: string
+          description: The bcc email address of the Person
+        - name: deal_dropbox_bcc
+          type: string
+          description: The bcc email address of the Deal
+        - name: assigned_to_user_id
+          description: The ID of the User to whom the Activity is assigned to. Equal to `user_id`.
+          type: integer
+        - name: file
+          type: object
+          description: 'The file that is attached to this Activity. For example, this can be a reference to an audio note file generated with Pipedrive mobile app.'   

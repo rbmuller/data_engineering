@@ -1,0 +1,858 @@
+version: 2
+
+sources:
+
+  - name: meetime
+    schema: ext_schema_datalake
+    database: dev
+    tables:
+      - name: meetime_cadences
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/cadences'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+            
+        columns:
+          - name: id
+            data_type: integer
+            description: ID da cadência
+          - name: name
+            data_type: varchar(255)
+            description: Nome da cadência
+          - name: owner_id
+            data_type: integer
+            description: ID do dono da cadência
+          - name: priority
+            data_type: varchar(20)
+            description: Prioridade da cadência
+          - name: type
+            data_type: varchar(20)
+            description: Tipo da cadência  
+          - name: cadence_focus
+            data_type: varchar(30)
+            description: Tipo da cadência
+          - name: created_at
+            data_type: varchar(25)
+            description: Data de criação da cadência
+          - name: created_by_id
+            data_type: integer
+            description: ID do usuário criador da cadência
+          - name: deleted
+            data_type: varchar(25)
+            description: Data em que a cadência foi deletada
+          - name: description
+            data_type: varchar(255)
+            description: Descrição da cadência
+          - name: executing
+            data_type: boolean
+            description: Indica se a cadência está ativa(true) ou pausada(false)
+                    
+      - name: meetime_company
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/company/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+          
+        columns:
+          - name: id
+            data_type: integer
+            description: ID da empresa
+          - name: name
+            data_type: varchar(255)
+            description: Nome da empresa
+          - name: created
+            data_type: varchar(25)
+            description: Data de criação da empresa
+          - name: status
+            data_type: varchar(25)
+            description: Status da empresa
+          - name: integrations
+            data_type: array<varchar(255)>
+            description: Integrações realizadas na empresa
+          - name: modules
+            data_type: array<varchar(255)>
+            description: modulos da empresa
+          - name: add_ons
+            data_type: array<varchar(25)>
+            description: Addons
+
+      - name: meetime_calls
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/calls/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-01'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID da ligação
+          - name: call_link
+            data_type: varchar(255)
+            description: Link para a descrição da ligação no painel da Meetime. É preciso estar autenticado para acessar
+          - name: call_type
+            data_type: varchar(10)
+            description: Tipo da ligação
+          - name: connected_duration_seconds
+            data_type: integer
+            description: Número de segundos contados desde que o telefone de destino foi atendido
+          - name: date
+            data_type: varchar(25)
+            description: Data da ligação
+          - name: important
+            data_type: boolean
+            description: Indica se a ligação foi marcada como importante
+          - name: notes
+            data_type: varchar(max)
+            description: Anotações da ligação
+          - name: origin_phone
+            data_type: varchar(50)
+            description: Telefone de origem escolhido pelo usuário
+          - name: origin_type
+            data_type: varchar(20)
+            description: Tipo do telefone de origem
+          - name: output
+            data_type: varchar(20)
+            description: Output dado pelo usuário
+          - name: prince
+            data_type: decimal
+            description: Preço em reais cobrados pela ligação
+          - name: receiver_phone
+            data_type: varchar(50)
+            description: Telefone de destino
+          - name: receiver_type
+            data_type: varchar(20)
+            description: Tipo do telefone de destino
+          - name: started_at
+            data_type: varchar(25)
+            description: Data e hora em que a ligação iniciou
+          - name: status
+            data_type: varchar(20)
+            description: Status da ligação
+          - name: updated
+            data_type: varchar(25)
+            description: Data e hora em que os dados da ligação foram atualizados
+          - name: user_id
+            data_type: integer
+            description: ID do usuário que realizou a ligação
+          - name: user_name
+            data_type: varchar(50)
+            description: Nome do usuário que realizou a ligação
+
+      - name: meetime_demos
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/demos/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: varchar(50)
+            description: ID da demo
+          - name: user_name
+            data_type: varchar(50)
+            description: Nome do usuário
+          - name: user_id
+            data_type: integer
+            description: ID do usuário
+          - name: team_name
+            data_type: varchar(50)
+            description: Nome do time
+          - name: demo_title
+            data_type: varchar(255)
+            description: Título da demonstração
+          - name: important
+            data_type: boolean
+            description: Importância da demo
+          - name: email_invites
+            data_type: varchar(255)
+            description: Convites de email
+          - name: demo_description
+            data_type: varchar(255)
+            description: Descrição da demo
+          - name: demo_type
+            data_type: varchar(50)
+            description: Tipo da demo
+          - name: scheduled_by
+            data_type: varchar(50)
+            description: Usuário que agendou a demo
+          - name: schedule_start_date
+            data_type: varchar(25)
+            description: Data de agendamento da demo
+          - name: start_date
+            data_type: varchar(25)
+            description: Data do registro da demo
+          - name: scheduled_duration
+            data_type: integer
+            description: Duração do agendamento da demo
+          - name: duration_minutes
+            data_type: integer
+            description: Duração da demo
+          - name: status
+            data_type: varchar(50)
+            description: Status da demo
+          - name: rating
+            data_type: varchar(255)
+            description: Avaliação da demo
+          - name: demo_link
+            data_type: varchar(255)
+            description: Link da demo
+          - name: updated
+            data_type: varchar(25)
+            description: Data de atualização do registro da demo
+
+      - name: meetime_leads
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/leads/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID do Lead
+          - name: current_prospection_id
+            data_type: integer
+            description: ID da última prospecção do lead
+          - name: external_reference
+            data_type: varchar(50)
+            description: Campo aberto para a utilização via API
+          - name: lead_annotations
+            data_type: varchar(max)
+            description: Anotações do lead
+          - name: lead_city
+            data_type: varchar(100)
+            description: Cidade do lead
+          - name: lead_company
+            data_type: varchar(100)
+            description: Nome da empresa do lead
+          - name: lead_created_date
+            data_type: varchar(25)
+            description: Data de criação do lead
+          - name: lead_deleted_date
+            data_type: varchar(25)
+            description: Data de exclusão do lead
+          - name: lead_email
+            data_type: varchar(100)
+            description: Email do lead
+          - name: lead_facebook
+            data_type: varchar(100)
+            description: Facebook do lead
+          - name: lead_linkedin
+            data_type: varchar(100)
+            description: LinkedIn do lead
+          - name: lead_name
+            data_type: varchar(100)
+            description: Nome do lead
+          - name: lead_position
+            data_type: varchar(50)
+            description: Ocupação do lead
+          - name: lead_site
+            data_type: varchar(100)
+            description: Site do lead
+          - name: lead_state
+            data_type: varchar(50)
+            description: Estado UF do lead
+          - name: lead_twitter
+            data_type: varchar(100)
+            description: Twitter do lead
+          - name: public_url
+            data_type: varchar(255)
+            description: Link para a página do lead no painel da Meetime
+          - name: phones
+            data_type: array<struct<label:varchar(50), phone:varchar(50),lastUsage:varchar(50)>>
+            description: Lista de telefones do lead
+          - name: segmento
+            data_type: varchar(100)
+            description: Campo personalizado
+          - name: b2bB2c
+            data_type: varchar(10)
+            description: Campo personalizado
+          - name: tag
+            data_type: varchar(255)
+            description: Campo personalizado
+          - name: preVendedor
+            data_type: varchar(50)
+            description: Campo personalizado
+          - name: departamento
+            data_type: varchar(50)
+            description: Campo personalizado
+          - name: noFuncionario
+            data_type: varchar(10)
+            description: Campo personalizado
+          - name: recovered
+            data_type: varchar(20)
+            description: Campo personalizado
+          - name: origemDoProspect
+            data_type: varchar(50)
+            description: Campo personalizado
+          - name: reuniao
+            data_type: varchar(50)
+            description: Campo personalizado
+          - name: contatosAdicionais
+            data_type: varchar(100)
+            description: Campo personalizado
+          - name: contatosAdicionais2
+            data_type: varchar(100)
+            description: Campo personalizado
+
+      - name: meetime_leads_custom_fields
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/leads_custom-fields'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID do campo
+          - name: field_key
+            data_type: varchar(50)
+            description: Chave do campo
+          - name: name
+            data_type: varchar(50)
+            description: Nome do campo customizado
+          - name: data_type
+            data_type: varchar(50)
+            description: Tipo do dado do campo
+          - name: options
+            data_type: array<struct<id:varchar(100), label:varchar(100)>>
+            description: Opções do campo
+
+      - name: meetime_prospections
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/prospections/'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID da prospecção
+          - name: lead_id
+            data_type: integer
+            description: ID do lead
+          - name: owner_id
+            data_type: integer
+            description: ID do proprietário
+          - name: owner_name
+            data_type: varchar(50)
+            description: Nome do proprietário
+          - name: cadence
+            data_type: varchar(100)
+            description: Nome da cadência
+          - name: cadence_id
+            data_type: integer
+            description: ID da cadência
+          - name: rd_conversion_date
+            data_type: varchar(25)
+            description: Data da conversão no RD
+          - name: created_date
+            data_type: varchar(25)
+            description: Data de criação
+          - name: deleted_date
+            data_type: varchar(25)
+            description: Data de exclusão
+          - name: begin_date
+            data_type: varchar(25)
+            description: Data de início
+          - name: scheduled_date
+            data_type: varchar(25)
+            description: Data de agendamento
+          - name: end_date
+            data_type: varchar(25)
+            description: Data de fim
+          - name: last_activity_date
+            data_type: varchar(25)
+            description: Data da última atividade
+          - name: status
+            data_type: varchar(20)
+            description: Status da prospecção
+          - name: lost_reason
+            data_type: varchar(50)
+            description: Motivo de perda
+          - name: lost_reason_id
+            data_type: integer
+            description: ID do motivo de perda
+          - name: lead_origin_channel
+            data_type: varchar(50)
+            description: Canal de origem
+          - name: lead_origin_source
+            data_type: varchar(50)
+            description: Origem
+          - name: lead_origin_campaign
+            data_type: varchar(50)
+            description: Campanha
+          - name: conversion
+            data_type: varchar(100)
+            description: Conversão
+
+      - name: meetime_prospections_activities
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/prospections_activities'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID da atividade
+          - name: lead_id
+            data_type: integer
+            description: ID do lead relacionado à atividade
+          - name: name
+            data_type: varchar(100)
+            description: Nome da atividade
+          - name: prospection_id
+            data_type: integer
+            description: ID da prospecção relacionada à atividade
+          - name: activity_annotation
+            data_type: varchar(255)
+            description: Anotação da atividade
+          - name: assigned_to_id
+            data_type: integer
+            description: ID do usuário responsável pela atividade
+          - name: available_from
+            data_type: varchar(25)
+            description: Data em que a atividade estará disponível para ser escalonada
+          - name: cadence
+            data_type: varchar(100)
+            description: Nome da cadência a qual pertence a atividade
+          - name: cadence_id
+            data_type: integer
+            description: ID da cadência relacionada à atividade
+          - name: call_id
+            data_type: integer
+            description: ID da ligação associada à atividade
+          - name: deleted_date
+            data_type: varchar(25)
+            description: Data em que a atividade foi deletada
+          - name: executed_by_id
+            data_type: integer
+            description: ID do usuário que executou a atividade
+          - name: execution_date
+            data_type: varchar(25)
+            description: Data em que a atividade foi executada
+          - name: goal_date
+            data_type: varchar(25)
+            description: Data em que a atividade deverá ser executada
+          - name: scope
+            data_type: varchar(20)
+            description: Escopo da atividade
+          - name: status
+            data_type: varchar(20)
+            description: Status da atividade
+          - name: type
+            data_type: varchar(50)
+            description: Tipo da atividade
+          - name: updated
+            data_type: varchar(25)
+            description: Data em que os dados da atividade foram atualizados
+
+      - name: meetime_prospections_lost_reasons
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/prospections_lost_reasons'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID do motivo de perda
+          - name: name
+            data_type: varchar(25)
+            description: Nome do motivo de perda
+
+      - name: meetime_users
+        external:
+          location: 's3://s3-movidesk-datalake-dev-raw/meetime/users'
+          row_format: >
+            serde 'org.openx.data.jsonserde.JsonSerDe'
+            with serdeproperties (
+                'strip.outer.array'='true'
+            )
+          auto_refresh: false
+
+          partitions:
+            - name: year
+              data_type: varchar(4)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "year=%Y"
+              path_macro: dbt_external_tables.year_month_day
+            - name: month
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "month=%m"
+              path_macro: dbt_external_tables.year_month_day
+            - name: day
+              data_type: varchar(2)
+              vals:
+                macro: dbt.dates_in_range
+                args:
+                  start_date_str: '2021-06-13'
+                  end_date_str: '{{modules.datetime.date.today().strftime("%Y-%m-%d")}}'
+                  in_fmt: "%Y-%m-%d"
+                  out_fmt: "day=%d"
+              path_macro: dbt_external_tables.year_month_day
+
+        columns:
+          - name: id
+            data_type: integer
+            description: ID do usuário
+          - name: name
+            data_type: varchar(100)
+            description: Nome do usuário
+          - name: email
+            data_type: varchar(100)
+            description: Email do usuário
+          - name: team_id
+            data_type: integer
+            description: ID do time
+          - name: team_name
+            data_type: varchar(100)
+            description: Nome do time
+          - name: role
+            data_type: varchar(100)
+            description: Função do usuário
+          - name: modules
+            data_type: array<varchar(2000)>
+            description: Modulos do usuário
+          - name: active
+            data_type: boolean
+            description: Status do usuário
+          - name: deleted_on
+            data_type: varchar(25)
+            description: Data de exclusão

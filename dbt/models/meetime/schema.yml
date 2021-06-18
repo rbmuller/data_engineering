@@ -1,0 +1,339 @@
+
+version: 2
+
+models:
+    - name: meetime_cadences
+      description: "Tabela com as cadências do meetime, ferramenta de outbound"
+      meta:
+        owner: "robson"
+      columns:
+        - name: cadence_focus
+          description: Tipo da cadência
+          tests:
+            - accepted_values:
+                values: ['OUTBOUND','PASSIVE_INBOUND','ACTIVE_INBOUND']
+        - name: created_at
+          description: Data de criação da cadência
+        - name: created_by_id
+          description: ID do usuário criador da cadência
+        - name: deleted
+          description: Data em que a cadência foi deletada
+        - name: description
+          description: Descrição da cadência
+        - name: executing
+          description: Indica se a cadência está ativa(true) ou pausada(false)
+        - name: id
+          description: ID da cadência
+          tests:
+            - not_null
+            - unique
+        - name: name
+          description: Nome da cadência
+        - name: owner_id
+          description: ID do dono da cadência
+        - name: priority
+          description: Prioridade da cadência
+          tests:
+            - accepted_values:
+                values: ['MEDIUM','LOW','HIGH','VERY_HIGH']
+        - name: type
+          description: Tipo da cadência
+          tests:
+            - accepted_values:
+                values: ['STANDARD','AUTOMATIC_EMAIL']
+
+    - name: meetime_company
+      description: "Tabela com as empresas cadastradas para usar nossa conta no Meetime"
+      meta:
+        owner: "robson"
+      columns:
+        - name: id
+          description: ID da empresa
+        - name: name
+          description: Nome da empresa
+        - name: created
+          description: Data de criação da empresa
+        - name: status
+          description: Status da empresa
+        - name: integrations
+          description: Integrações realizadas na empresa
+        - name: modules
+          description: Addons
+        - name: add_ons
+          description: Addons  
+
+    - name: meetime_calls
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson"
+      columns:
+        - name: call_type
+          description: Tipo de ligacao
+          tests:
+            - accepted_values:
+                values: ['PHONE','VOIP']
+        - name: connected_duration_seconds
+          description: Tempo de duracao da chamada
+        - name: date
+          description: Data da ligacao
+        - name: id 
+          description: id da ligacao
+        - name: important 
+          description: indica se ligacao foi marcada como importante 
+        - name: notes
+          description: anotacoes da ligacao 
+        - name: origin_phone
+          description: Telefone de origem escolhido 
+        - name: origin_type
+          description: Tipo do telefone de origem 
+          tests:
+            - accepted_values: 
+                values: ['LANDLINE', 'MOBILE','SPECIAL','EXTENSION']
+        - name: output
+          description: Output dado pelo usuario 
+          tests:
+            - accepted_values:
+                values: ['NO_CONTACT', 'MEANINGFUL','NOT_MEANINGFU','CLIENT_BUSY']            
+
+    - name: meetime_demos
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson" 
+      columns:
+        - name: id
+          description: ID da demo
+        - name: user_name
+          description: Nome do usuário
+        - name: user_id
+          description: ID do usuário
+        - name: team_name
+          description: Nome do time
+        - name: demo_title
+          description: Título da demonstração
+        - name: important
+          description: Importância da demo
+        - name: email_invites
+          description: Convites de email
+        - name: demo_description
+          description: Descrição da demo
+        - name: demo_type
+          description: Tipo da demo
+        - name: scheduled_by
+          description: Usuário que agendou a demo
+        - name: schedule_start_date
+          description: Data de agendamento da demo
+        - name: start_date
+          description: Data do registro da demo
+        - name: scheduled_duration
+          description: Duração do agendamento da demo
+        - name: duration_minutes
+          description: Duração da demo
+        - name: status
+          description: Status da demo
+        - name: rating
+          description: Avaliação da demo
+        - name: demo_link
+          description: Link da demo
+        - name: updated
+          description: Data de atualização do registro da demo
+
+    - name: meetime_leads
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson"  
+      columns:
+        - name: id
+          description: ID do Lead
+        - name: current_prospection_id
+          description: ID da última prospecção do lead
+        - name: external_reference
+          description: Campo aberto para a utilização via API
+        - name: lead_annotations
+          description: Anotações do lead
+        - name: lead_city
+          description: Cidade do lead
+        - name: lead_company
+          description: Nome da empresa do lead
+        - name: lead_created_date
+          description: Data de criação do lead
+        - name: lead_deleted_date
+          description: Data de exclusão do lead
+        - name: lead_email
+          description: Email do lead
+        - name: lead_facebook
+          description: Facebook do lead
+        - name: lead_linkedin
+          description: LinkedIn do lead
+        - name: lead_name
+          description: Nome do lead
+        - name: lead_position
+          description: Ocupação do lead
+        - name: lead_site
+          description: Site do lead
+        - name: lead_state
+          description: Estado UF do lead
+        - name: lead_twitter
+          description: Twitter do lead
+        - name: public_url
+          description: Link para a página do lead no painel da Meetime
+        - name: phones
+          description: Lista de telefones do lead
+        - name: segmento
+          description: Campo personalizado
+        - name: b2bB2c
+          description: Campo personalizado
+        - name: tag
+          description: Campo personalizado
+        - name: preVendedor
+          description: Campo personalizado
+        - name: departamento
+          description: Campo personalizado
+        - name: noFuncionario
+          description: Campo personalizado
+        - name: recovered
+          description: Campo personalizado
+        - name: origemDoProspect
+          description: Campo personalizado
+        - name: reuniao
+          description: Campo personalizado
+        - name: contatosAdicionais
+          description: Campo personalizado
+        - name: contatosAdicionais2
+          description: Campo personalizado
+
+    - name: meetime_leads_custom_fields
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson"  
+      columns:
+        - name: id
+          description: ID do campo
+        - name: field_key
+          description: Chave do campo
+        - name: name
+          description: Nome do campo customizado
+          description: Tipo do dado do campo
+        - name: options
+          description: Opções do campo
+
+    - name: meetime_prospections
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson"  
+      columns:
+        - name: id
+          description: ID da prospecção
+        - name: lead_id
+          description: ID do lead
+        - name: owner_id
+          description: ID do proprietário
+        - name: owner_name
+          description: Nome do proprietário
+        - name: cadence
+          description: Nome da cadência
+        - name: cadence_id
+          description: ID da cadência
+        - name: rd_conversion_date
+          description: Data da conversão no RD
+        - name: created_date
+          description: Data de criação
+        - name: deleted_date
+          description: Data de exclusão
+        - name: begin_date
+          description: Data de início
+        - name: scheduled_date
+          description: Data de agendamento
+        - name: end_date
+          description: Data de fim
+        - name: last_activity_date
+          description: Data da última atividade
+        - name: status
+          description: Status da prospecção
+        - name: lost_reason
+          description: Motivo de perda
+        - name: lost_reason_id
+          description: ID do motivo de perda
+        - name: lead_origin_channel
+          description: Canal de origem
+        - name: lead_origin_source
+          description: Origem
+        - name: lead_origin_campaign
+          description: Campanha
+        - name: conversion
+          description: Conversão
+
+    - name: meetime_prospections_activities
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson" 
+      columns:
+        - name: activity_annotation
+          description: Anotação da atividade
+        - name: assigned_to_id
+          description: ID do usuário responsável pela atividade
+        - name: available_from
+          description: Data em que a atividade estará disponível para ser escalonada
+        - name: cadence
+          description: Nome da cadência a qual pertence a atividade
+        - name: cadence_id
+          description: ID da cadência relacionada à atividade
+        - name: call_id
+          description: ID da ligação associada à atividade
+        - name: deleted_date
+          description: Data em que a atividade foi deletada
+        - name: executed_by_id
+          description: ID do usuário que executou a atividade
+        - name: execution_date
+          description: Data em que a atividade foi executada
+        - name: goal_date
+          description: Data em que a atividade deverá ser executada
+        - name: id
+          description: ID da atividade
+        - name: lead_id
+          description: ID do lead relacionado à atividade
+        - name: name
+          description: Nome da atividade
+        - name: prospection_id
+          description: ID da prospecção relacionada à atividade
+        - name: scope
+          description: Escopo da atividade
+        - name: status
+          description: Status da atividade
+        - name: type
+          description: Tipo da atividade
+        - name: updates
+          description: Data em que os dados da atividade foram atualizados
+
+    - name: meetime_prospections_lost_reasons
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson"  
+      columns:
+        - name: id
+          description: ID do motivo de perda
+        - name: name
+          description: Nome do motivo de perda
+
+    - name: meetime_users
+      description: "Tabela de calls do meetime"
+      meta:
+        owner: "robson" 
+      columns:
+        - name: id
+          description: ID do usuário
+        - name: name
+          description: Nome do usuário
+        - name: email
+          description: Email do usuário
+        - name: team_id
+          description: ID do time
+        - name: team_name
+          description: Nome do time
+        - name: role
+          description: Função do usuário
+        - name: modules
+          description: Modulos habilitados para o usuario
+        - name: active
+          description: Status do usuário
+        - name: deleted_on
+          description: Data de exclusão
