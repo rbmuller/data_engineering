@@ -1,4 +1,9 @@
-{{ config(materialized='table') }}
+{{ 
+	config(
+		materialized='incremental',
+        unique_key='updated'
+    )
+}}
 
 with cte as (
 	select row_number() 

@@ -1,6 +1,5 @@
 {{ config(materialized='table') }}
 
-WITH SOURCE AS:
 SELECT  id::int,
         current_prospection_id::int,
         external_reference,
@@ -34,8 +33,4 @@ SELECT  id::int,
         contatosAdicionais2
 FROM ext_schema_datalake.meetime_leads l
 left join l.phones list_phones on TRUE
---WHERE  updated = (SELECT MAX(updated) FROM {{ source('meetime', 'meetime_calls') }} B WHERE B.ID=A.ID )
-) 
-SELECT *
-FROM SOURCE 
 

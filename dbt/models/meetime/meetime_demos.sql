@@ -1,8 +1,16 @@
-{{ config(materialized='table') }}
+{{ 
+	config(
+		materialized='incremental',
+        unique_key='updated'
+    )
+}}
 
-with source as (
-    SELECT
-        id, 
+with cte as (
+	select row_number() 
+           over (partition by id order by updated desc) as record,
+           *
+        from ext_schema_datalake.meetime_demos) 
+select id, 
         user_name,
         user_id,
         team_name,
@@ -20,7 +28,6 @@ with source as (
         rating,
         demo_link,
         TO_TIMESTAMP(updated, 'YYYY-MM-DD HH24:MI:SS') at time zone 'America/Sao_Paulo' AS updated
-    FROM {{ source('meetime', 'meetime_demos') }}
-)
-select *
-from source
+ from cte
+ where record=1
+ order by id

@@ -1,8 +1,16 @@
-{{ config(materialized='table') }}
+{{ 
+	config(
+		materialized='incremental',
+        unique_key='last_activity_date'
+    )
+}}
 
-with source as (
-    SELECT
-        id,
+with cte as (
+	select row_number() 
+           over (partition by id order by last_activity_date desc) as record,
+           *
+        from ext_schema_datalake.meetime_prospections ) 
+select id,
         lead_id,
         owner_id,
         owner_name,
@@ -22,7 +30,6 @@ with source as (
         lead_origin_source,
         lead_origin_campaign,
         conversion
-    FROM {{ source('meetime', 'meetime_prospections') }}
-)
-select *
-from source
+ from cte
+ where record=1
+ order by id
