@@ -1,17 +1,18 @@
-# Engenharia de Dados
-Portfolio de Engenharia de Dados
+#Data Engineering
 
-* Ingestão de dados com Apache Airflow ou Nifi em Docker em VM Cloud, DAGs montadas com Hooks e Operators
-  * Exemplo de DAG airflow para ingerir de modo incremental dados de uma API SaaS
+Data Engineering Portfolio
 
-* Camada de armazenamento dos dados Raw em AWS S3, ou HDFS 
+Data ingestion with Apache Airflow or Nifi in Docker in Cloud, DAGs mounted with Hooks and Operators
 
-* Consulta dos dados na camada raw com external tables e redshift Spectrum 
+DAG airflow example to incrementally ingest data from a SaaS API
+Raw data storage layer on AWS S3, or HDFS
 
-* Processamento dos dados em SQL, modelagem e criação do Schema no DW com DBT 
+Queriyng raw data with external tables and redshift Spectrum
 
-* Dataviz proposto com Apache Superset 
+SQL data processing, Schema modeling and creation in DW with DBT
 
-* Exemplo de infra as code com AWS CDK e deploy com Github Actions e Pull Request na Branch específica
+Proposed Dataviz with Apache Superset
+
+Example of infra as code with AWS CDK and deploy with Github Actions and Pull Request in specific Branch
 
 
